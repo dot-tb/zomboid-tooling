@@ -1,6 +1,12 @@
 #!/c/Windows/System32/WindowsPowerShell/v1.0/powershell
+$FolderPath = $PWD
 
-$FolderName = (Get-Item $PSScriptRoot).Name
+if (!(Test-Path ".\workshop.txt")) {
+  Write-Host "Not in mod folder"
+  exit
+}
 
-New-Item -Path "$env:USERPROFILE\Zomboid\Workshop\$FolderName" -ItemType SymbolicLink -Value $PSScriptRoot
+$FolderName = (Get-Item $FolderPath).Name
+
+New-Item -Path "$env:USERPROFILE\Zomboid\Workshop\$FolderName" -ItemType SymbolicLink -Value $FolderPath
 
