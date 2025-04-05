@@ -1,9 +1,21 @@
 #!/bin/sh
-
-MOVE_TO=$(dirname $(realpath -s "$0"))
-
-cd "${MOVE_TO}/.."
 PROJECT_NAME=${PWD##*/}
+echo "Do you wish to initialize a Project zomboid mod in this folder ?"
+echo "$PROJECT_NAME"
+
+select strictreply in "Yes" "No"; do
+    relaxedreply=${strictreply:-$REPLY}
+    case $relaxedreply in
+        Yes | yes | y ) break;;
+        No  | no  | n ) exit;;
+    esac
+done
+
+gh repo create "zomboid-${PROJECT_NAME}" --public
+git init
+git remote add origin "https://github.com/dot-tb/zomboid-${PROJECT_NAME}.git"
+
+
 PROJECT_NAME_PASCAL_CASE=$(echo "$PROJECT_NAME" | sed -E 's/[^-]+/\L\u&/g' | sed -e 's/-//g')
 PROJECT_NAME_READABLE=$(echo "$PROJECT_NAME_PASCAL_CASE" | sed -E 's/[A-Z]/ &/g' | xargs)
 PROJECT_NAME_PREFIXED="Delran${PROJECT_NAME_PASCAL_CASE}"
@@ -26,6 +38,8 @@ mkdir -p "$LUA_FOLDER_SHARED"
 mkdir -p "$COMMON_FOLDER"
 touch "$LUA_FOLDER_CLIENT/${PROJECT_NAME_PREFIXED}_Main.lua"
 touch "$COMMON_FOLDER/.gitkeep"
+
+git submodule add "https://github.com/dot-tb/zomboid-delran-lib.git" "${LUA_FOLDER_SHARED}/DelranLib"
 
 cat > "$CODE_WORKSPACE_FILE"  << EOL
 {
@@ -55,3 +69,7 @@ poster=poster.png
 icon=poster.png
 versionMin=42.0.0
 EOL
+
+git add --all
+git commit -am "Initiali commit"
+git push -u origin main
