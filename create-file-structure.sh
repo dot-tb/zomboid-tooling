@@ -16,13 +16,15 @@ LUA_FOLDER_CLIENT="$LUA_FOLDER/client"
 LUA_FOLDER_SERVER="$LUA_FOLDER/server"
 LUA_FOLDER_SHARED="$LUA_FOLDER/shared"
 
+MOD_FOLDER_LUA="${LUA_FOLDER_CLIENT}/${PROJECT_NAME_PREFIXED}"
+
 CODE_WORKSPACE_FILE="${PROJECT_NAME}.code-workspace"
 
 [[ -f "workshop.txt" || -f "$CODE_WORKSPACE_FILE" ]] && echo "Workspace files already exists, the script will exit and not override anything" && exit
 
-mkdir -p "$LUA_FOLDER_CLIENT"
+mkdir -p "$MOD_FOLDER_LUA"
 mkdir -p "$COMMON_FOLDER"
-touch "$LUA_FOLDER_CLIENT/${PROJECT_NAME_PREFIXED}_Main.lua"
+touch "$MOD_FOLDER_LUA/${PROJECT_NAME_PREFIXED}_Main.lua"
 touch "$COMMON_FOLDER/.gitkeep"
 
 cat > "$CODE_WORKSPACE_FILE"  << EOL
