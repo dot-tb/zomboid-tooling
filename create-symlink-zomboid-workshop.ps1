@@ -9,4 +9,8 @@ if (!(Test-Path ".\workshop.txt")) {
 $FolderName = (Get-Item $FolderPath).Name
 
 New-Item -Path "$env:USERPROFILE\Zomboid\Workshop\$FolderName" -ItemType SymbolicLink -Value $FolderPath
+if (Test-Path "$env:USERPROFILE\ZomboidB41") {
+  Write-Host "Found B41 cache folder, writting symlink there too"
+  New-Item -Path "$env:USERPROFILE\ZomboidB41\Workshop\$FolderName" -ItemType SymbolicLink -Value $FolderPath
+}
 
