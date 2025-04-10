@@ -11,9 +11,13 @@ select strictreply in "Yes" "No"; do
     esac
 done
 
-gh repo create "zomboid-${PROJECT_NAME}" --public
-git init
-git remote add origin "https://github.com/dot-tb/zomboid-${PROJECT_NAME}.git"
+REPO_NAME_WORKSHOP=zomboid-${PROJECT_NAME}-workshop;
+REPO_NAME_MOD=zomboid-${PROJECT_NAME}-mod;
+
+gh repo create $REPO_NAME_WORKSHOP --public
+gh repo clone $REPO_NAME_WORKSHOP .
+#git init
+#git remote add origin "https://github.com/dot-tb/zomboid-${PROJECT_NAME}.git"
 
 
 PROJECT_NAME_PASCAL_CASE=$(echo "$PROJECT_NAME" | sed -E 's/[^-]+/\L\u&/g' | sed -e 's/-//g')
@@ -39,24 +43,23 @@ CODE_WORKSPACE_FILE="${PROJECT_NAME}.code-workspace"
 
 [[ -f "workshop.txt" || -f "$CODE_WORKSPACE_FILE" ]] && echo "Workspace files already exists, the script will exit and not override anything" && exit
 
-mkdir -p "$LUA_FOLDER_CLIENT_B42"
-mkdir -p "$LUA_FOLDER_SERVER_B42"
-mkdir -p "$LUA_FOLDER_SHARED_B42"
 mkdir -p "$COMMON_FOLDER"
 
-mkdir -p "$LUA_FOLDER_CLIENT_B41"
-mkdir -p "$LUA_FOLDER_SERVER_B41"
-mkdir -p "$LUA_FOLDER_SHARED_B41"
+#mkdir -p "$LUA_FOLDER_CLIENT_B41"
+#mkdir -p "$LUA_FOLDER_SERVER_B41"
+#mkdir -p "$LUA_FOLDER_SHARED_B41"
+
+mkdir -p "${MOD_FOLDER_B41}/media"
+mkdir -p "${MOD_FOLDER_B42}/media"
+
+#touch "$LUA_FOLDER_CLIENT_B41/${PROJECT_NAME_PREFIXED}_B41_Main.lua"
+
+#git submodule add -b b41 "https://github.com/dot-tb/zomboid-delran-lib.git" "${LUA_FOLDER_SHARED_B41}/DelranLib"
 
 mkdir -p "${MOD_FOLDER_B41}/.vscode"
 mkdir -p "${MOD_FOLDER_B42}/.vscode"
 
-touch "$LUA_FOLDER_CLIENT_B42/${PROJECT_NAME_PREFIXED}_Main.lua"
-touch "$LUA_FOLDER_CLIENT_B41/${PROJECT_NAME_PREFIXED}_B41_Main.lua"
 touch "$COMMON_FOLDER/.gitkeep"
-
-git submodule add -b main "https://github.com/dot-tb/zomboid-delran-lib.git" "${LUA_FOLDER_SHARED_B42}/DelranLib"
-git submodule add -b b41 "https://github.com/dot-tb/zomboid-delran-lib.git" "${LUA_FOLDER_SHARED_B41}/DelranLib"
 
 cat > "${MOD_FOLDER_B42}/.vscode/settings.json" << EOL
 {
@@ -142,6 +145,37 @@ icon=poster.png
 versionMin=41.0.0
 versionMin=41.78.0
 EOL
+
+
+# Create repo for mod source files
+gh repo create $REPO_NAME_MOD --public
+
+CURRENT_PATH=$PWD
+
+cd /tmp && gh repo clone $REPO_NAME_MOD temp-repo && cd temp-repo
+
+mkdir -p "client/${PROJECT_NAME_PREFIXED}"
+mkdir -p "server/${PROJECT_NAME_PREFIXED}"
+mkdir -p "shared/${PROJECT_NAME_PREFIXED}"
+touch "client/${PROJECT_NAME_PREFIXED}/${PROJECT_NAME_PREFIXED}_Main.lua"
+touch "server/${PROJECT_NAME_PREFIXED}/.gitkeep"
+
+git submodule add -b main "https://github.com/dot-tb/zomboid-delran-lib.git" "shared/${PROJECT_NAME_PREFIXED}/DelranLib"
+
+git add --all && git commit -m "Initial commit" && git push origin main 
+
+git switch -c b41 
+git submodule set-branch -b b41 "shared/${PROJECT_NAME_PREFIXED}/DelranLib" 
+git submodule update --remote 
+git commit -am "Set b41 DelranLib submodule to follow the b41 branch" 
+git push origin b41
+
+cd .. && rm -rfd temp-repo && cd $CURRENT_PATH
+
+git submodule add -b main --name "${PROJECT_NAME}-b42" "https://github.com/dot-tb/$REPO_NAME_MOD" "$LUA_FOLDER_B42"
+git submodule add -b b41 --name "${PROJECT_NAME}-b41" "https://github.com/dot-tb/$REPO_NAME_MOD" "$LUA_FOLDER_B41"
+
+git submodule update --init --remote --recursive
 
 git add --all
 git commit -am "Initiali commit"
