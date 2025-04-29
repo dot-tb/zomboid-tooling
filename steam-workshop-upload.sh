@@ -10,7 +10,7 @@ cat << EOT > /tmp/template.vdf
 {
     "appid" "$APP_ID"
     "publishedfileid" "$WORKSHOP_ID"
-    "contentfolder" "$(cygpath -da $PWD)"
+    "contentfolder" "$(cygpath -da $PWD)\\Contents"
 }
 EOT
 
