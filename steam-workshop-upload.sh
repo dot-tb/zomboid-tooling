@@ -3,9 +3,9 @@
 [[ ! -f "workshop.txt" ]] && echo "Please run this script from the root folder of the mod" && exit
 
 APP_ID=108600
-WORKSHOP_ID=$(cat workshop.txt | grep -E '^id=' | sed -E 's/^id=//g')
+WORKSHOP_ID=$(cat workshop.txt | grep '^id=' | sed 's/^id=//')
 
-DESCRIPTION=$(cat workshop.txt | grep description= | sed -E 's/^description=//')
+DESCRIPTION=$(cat workshop.txt | grep '^description=' | sed 's/^description=//')
 
 
 cat << EOT > /tmp/template.vdf
